@@ -116,6 +116,7 @@ namespace FileUnduplicator
 
                     await SetTotalFileCount(sourceFolders);
                     await CopyDirectories(sourceFolders, destinationFolder, 0);
+                    MessageBox.Show("Folder merge complete!");
                 }
                 catch (Exception ex)
                 {
