@@ -3,10 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:FileUnduplicator"
+        xmlns:local="clr-namespace:FileUnduplicator" 
         mc:Ignorable="d"
         Title="Un Duplicate Files" Height="350" Width="625">
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,-56.6,-0.2">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,-56.6,-0.2" Name="MainGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -20,7 +20,7 @@
                 </Button>
             </StackPanel>
             <TextBlock Margin=" 5, 0, 0, 0">
-                Program will copy all the files from the source folders to the destination folder and eliminate any duplicate files.                 
+                Program will copy all the files from the source folders to the destination folder and eliminate any duplicate files.
             </TextBlock>
             <TextBlock Margin=" 5, 0, 0, 0">
                 Files that are not the same, but have the same file name will get a number appended to their file name.
@@ -63,5 +63,6 @@
                 </ItemsControl>
             </StackPanel>
         </ScrollViewer>
+        <local:ProgressBar  x:Name="ProgressBar" Grid.Row="0" Grid.RowSpan="4" Grid.ColumnSpan="3"  Visibility="Collapsed"></local:ProgressBar>
     </Grid>
 </Window>

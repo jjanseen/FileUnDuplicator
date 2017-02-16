@@ -79,7 +79,12 @@ namespace FileUnduplicator
             }
             else
             {
-                await Task.Run(() =>
+                totalFiles = 0;
+                alreadyCopiedFiles = new Dictionary<string, bool>();
+                DisableControls();
+                ProgressBar.Visibility = Visibility.Visible;
+
+                try
                 {
                     DirectoryInfo destinationFolder = new DirectoryInfo(foldersViewModel.DestinationFolderPath);
 
@@ -108,17 +113,67 @@ namespace FileUnduplicator
                             return;
                         }
                     }
-                    CopyDirectories(sourceFolders, destinationFolder);
 
-                    alreadyCopiedFiles = new Dictionary<string, bool>();
-                });
+                    await SetTotalFileCount(sourceFolders);
+                    await CopyDirectories(sourceFolders, destinationFolder, 0);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("There was an error: " + ex.Message);
+                }
+                finally
+                {
+                    await Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        ProgressBar.Visibility = Visibility.Collapsed;
+                    }));
+                    EnableControls();
+                }
             }
         }
 
+        private void DisableControls()
+        {
+            MainGrid.IsEnabled = false;
+        }
+
+        private void EnableControls()
+        {
+            MainGrid.IsEnabled = true;
+        }
+
+        private async Task SetTotalFileCount(IEnumerable<DirectoryInfo> directories)
+        {
+            foreach (DirectoryInfo directory in directories)
+            {
+                IEnumerable<DirectoryInfo> subFolders = null;
+                IEnumerable<FileInfo> files = null;
+                try
+                {
+                    await Task.Run(() =>
+                    {
+                        subFolders = directory.EnumerateDirectories();
+                        files = directory.EnumerateFiles();
+                    });
+                }
+                catch (SecurityException)
+                {
+                    MessageBox.Show($"Access to {directory.FullName} was denied!");
+                }
+                if (subFolders != null && files != null)
+                {
+                    totalFiles += files.Count();
+                    await SetTotalFileCount(subFolders);
+                }
+            }
+        }
+
+        private double totalFiles = 0;
         private Dictionary<string, bool> alreadyCopiedFiles = new Dictionary<string, bool>();
 
-        private void CopyDirectories(IEnumerable<DirectoryInfo> directories, DirectoryInfo destination)
+        private async Task CopyDirectories(IEnumerable<DirectoryInfo> directories, DirectoryInfo destination, int processedFiles)
         {
+            int filesProcessed = processedFiles;
             foreach (DirectoryInfo directory in directories)
             {
                 IEnumerable<DirectoryInfo> subFolders = null;
@@ -135,25 +190,38 @@ namespace FileUnduplicator
 
                 if (subFolders != null && files != null)
                 {
-                    CopyDirectories(subFolders, destination);
+                    await CopyDirectories(subFolders, destination, filesProcessed);
                     foreach (FileInfo file in files)
                     {
-                        using (var md5 = MD5.Create())
+                        await Task.Run(() =>
                         {
-                            using (var stream = file.OpenRead())
+                            using (var md5 = MD5.Create())
                             {
-                                string hash = Encoding.Default.GetString(md5.ComputeHash(stream));
-                                if (!alreadyCopiedFiles.ContainsKey(hash))
+                                using (var stream = file.OpenRead())
                                 {
-                                    alreadyCopiedFiles.Add(hash, true);
-                                    string newFileName = GetUniqueFileName(file.Name, destination);
-                                    File.Copy(file.FullName, System.IO.Path.Combine(destination.FullName, newFileName));
+                                    string hash = Encoding.Default.GetString(md5.ComputeHash(stream));
+                                    if (!alreadyCopiedFiles.ContainsKey(hash))
+                                    {
+                                        alreadyCopiedFiles.Add(hash, true);
+                                        string newFileName = GetUniqueFileName(file.Name, destination);
+                                        File.Copy(file.FullName, System.IO.Path.Combine(destination.FullName, newFileName));
+                                    }
                                 }
                             }
-                        }
+                        });
+                        filesProcessed += 1;
+                        await UpdateProgress(filesProcessed);
                     }
                 }
             }
+        }
+
+        private async Task UpdateProgress(int processedFiles)
+        {
+            await Dispatcher.BeginInvoke(new System.Action(() =>
+            {
+                ProgressBar.ProgressBarStatus.Value = ((double)processedFiles / totalFiles) * 100;
+            }));
         }
 
         private string GetUniqueFileName(string fileName, DirectoryInfo destination)
