@@ -5,8 +5,63 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FileUnduplicator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        
+        Title="Un Duplicate Files" Height="350" Width="625">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,-56.6,-0.2">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Vertical" Grid.Row="0">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock>Select 1 or more source folders, set a destination folder then click</TextBlock>
+                <Button x:Name="ButtonRun" Content="RUN" Margin="10, 0, 0, 3" Click="ButtonRun_Click" VerticalAlignment="Bottom">
+                </Button>
+            </StackPanel>
+            <TextBlock Margin=" 5, 0, 0, 0">
+                Program will copy all the files from the source folders to the destination folder and eliminate any duplicate files.                 
+            </TextBlock>
+            <TextBlock Margin=" 5, 0, 0, 0">
+                Files that are not the same, but have the same file name will get a number appended to their file name.
+            </TextBlock>
+            <TextBlock Margin=" 5, 0, 0, 0">
+                Program will recurse through all directories in the source folders and place files into a flat directory in destination.
+            </TextBlock>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Row="1">
+            <Label>Destination Folder:</Label>
+            <Button x:Name="ButtonSetDestinationFolder" Content="Set Folder" Margin="0, 0, 0, 3" Click="ButtonSetDestinationFolder_Click" VerticalAlignment="Bottom">
+            </Button>
+            <Label  Content="{Binding DestinationFolderPath}"></Label>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Row="2">
+            <Label>Source Folders:</Label>
+            <Button x:Name="ButtonAddFolder" Content="Add Folder" Margin="0, 0, 0, 3" Click="ButtonAddFolder_Click" VerticalAlignment="Bottom">
+            </Button>
+        </StackPanel>
+        <ScrollViewer Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Top" >
+            <StackPanel Orientation="Vertical">
+                <ItemsControl ItemsSource="{Binding Path=Folders, Mode=TwoWay}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Label Grid.Column="0" Content="{Binding FolderPath}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                                <Button Grid.Column="1" Tag="{Binding ID}" Margin="0,0,4,0" Content="Remove"
+                                        Click="ButtonRemove_Click" VerticalAlignment="Center" HorizontalAlignment="Left">
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Window>
