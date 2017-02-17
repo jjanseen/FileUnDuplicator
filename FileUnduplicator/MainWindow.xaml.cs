@@ -222,6 +222,7 @@ namespace FileUnduplicator
             await Dispatcher.BeginInvoke(new System.Action(() =>
             {
                 ProgressBar.ProgressBarStatus.Value = ((double)processedFiles / totalFiles) * 100;
+                ProgressBar.ProgressBarText.Text = processedFiles.ToString() + "/" + totalFiles.ToString(); 
             }));
         }
 

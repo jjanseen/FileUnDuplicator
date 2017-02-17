@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FileUnduplicator"
         mc:Ignorable="d"
-        Height="100" Width="300">
+        Height="100" Width="300">    
     <Grid Margin="20">
-        <ProgressBar Minimum="0" Maximum="100" Name="ProgressBarStatus" />
+        <ProgressBar Grid.Row="1" Minimum="0" Maximum="100" Name="ProgressBarStatus" />
+        <TextBlock Name="ProgressBarText" Text="" HorizontalAlignment="Center" VerticalAlignment="Center" />
     </Grid>
 </UserControl>
